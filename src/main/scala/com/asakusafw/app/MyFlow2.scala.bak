@@ -1,0 +1,19 @@
+package com.asakusafw.app
+
+import com.asakusafw.dsl._
+
+class MyArtifactAux extends DataSource
+
+// 1.24
+class MyFlow2 extends Flow11 {
+  type IN1 = MyInput
+  type OUT1 = MyOutput
+
+  start proc(op1) proc(op2) end
+
+  val c1 = channel('c1, opA) end
+
+  val op1 = Operation12[MyInput, MyArtifact, MyArtifactAux](c1)
+  val op2 = Operation21[MyArtifact, MyArtifactAux, MyOutput]('c1)
+  val opA = Operation11[MyArtifactAux, MyArtifactAux]
+}

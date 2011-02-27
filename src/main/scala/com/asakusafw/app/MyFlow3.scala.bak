@@ -1,0 +1,18 @@
+package com.asakusafw.app
+
+import com.asakusafw.dsl._
+
+class MyInput2 extends DataSource2[String, String]
+class MyOutput3 extends DataSource3[String, String, String]
+class MyArtifact4 extends DataSource4[String, String, String, String]
+
+// 2.16
+class MyFlow3 extends Flow11 {
+  type IN1 = MyInput2
+  type OUT1 = MyOutput3
+
+  start proc(op1) proc(op2) end
+
+  val op1 = Operation11[MyInput2, MyArtifact4]()
+  val op2 = Operation11[MyArtifact4, MyOutput]()
+}
