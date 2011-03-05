@@ -13,9 +13,6 @@ abstract class Flow {
     node
   }
 
-  val f11 = new SubFlows[Flow11]
-  val f32 = new SubFlows[Flow32]
-
   def channel[CINOUT <: DataSource](atom: Symbol): Channel[CINOUT, CINOUT] = {
     val ch = new Channel[CINOUT, CINOUT](atom)
     channels(atom) = ch
