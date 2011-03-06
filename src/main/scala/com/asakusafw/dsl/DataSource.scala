@@ -1,7 +1,7 @@
 package com.asakusafw.dsl
 
 // 1.17
-abstract class DataSource {
+abstract class DataSource extends JavaDslLinkable {
 }
 
 abstract class DataSource2[D1 <: DataSource, D2 <: DataSource](implicit val m1: Manifest[D1], implicit val m2: Manifest[D2]) extends DataSource {

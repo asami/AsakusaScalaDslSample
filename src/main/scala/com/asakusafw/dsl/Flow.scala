@@ -39,10 +39,17 @@ class SubFlows[F <: Flow] {
 }
 
 abstract class Flow11[IN1 <: DataSource, OUT1 <: DataSource] extends Flow {
-  val in1 = new Port[IN1]
-  val out1 = new Port[OUT1]
+  val in1 = new Port[IN1](this)
+  val out1 = new Port[OUT1](this)
+
+  def post1 = in1
+  def get1 = out1
 
   def start: FlowNode1[IN1] = {
+    set_start(new FlowNode1[IN1]())
+  }
+
+  def start(port: Port[IN1]) = {
     set_start(new FlowNode1[IN1]())
   }
 }
@@ -50,11 +57,11 @@ abstract class Flow11[IN1 <: DataSource, OUT1 <: DataSource] extends Flow {
 abstract class Flow32[IN1 <: DataSource, IN2 <: DataSource, IN3 <: DataSource, OUT1 <: DataSource, OUT2 <: DataSource] extends Flow {
   private var _start: Option[FlowNode] = None
 
-  val in1 = new Port[IN1]
-  val in2 = new Port[IN2]
-  val in3 = new Port[IN3]
-  val out1 = new Port[OUT1]
-  val out2 = new Port[OUT2]
+  val in1 = new Port[IN1](this)
+  val in2 = new Port[IN2](this)
+  val in3 = new Port[IN3](this)
+  val out1 = new Port[OUT1](this)
+  val out2 = new Port[OUT2](this)
 
   def start: FlowNode1[IN1] = {
     set_start(new FlowNode1[IN1]())
@@ -106,6 +113,9 @@ class FlowNode1[FIN1 <: DataSource](prev: Option[FlowNode] = None) extends FlowN
 
   def end {
   }
+
+  def end[FOUT1 <: DataSource](port: Port[FOUT1]) {
+  }
 }
 
 class FlowNode2[FIN1 <: DataSource, FIN2 <: DataSource](prev: Option[FlowNode] = None) extends FlowNode(prev) {
@@ -152,22 +162,22 @@ class FlowNode3[FIN1 <: DataSource, FIN2 <: DataSource, FIN3 <: DataSource](prev
   }
 }
 
-abstract class Operation
+abstract class Operation(val ports: List[Port[_]]) extends JavaDslLinkable
 
-class Operation11[FIN1 <: DataSource, FOUT1 <: DataSource](implicit val min1: Manifest[FIN1], implicit val mout1: Manifest[FOUT1]) extends Operation
+class Operation11[FIN1 <: DataSource, FOUT1 <: DataSource](implicit val min1: Manifest[FIN1], implicit val mout1: Manifest[FOUT1]) extends Operation(Nil)
 
-class Operation12[FIN1 <: DataSource, FOUT1 <: DataSource, FOUT2 <: DataSource](cout2: Port[FOUT2])(implicit val min1: Manifest[FIN1], implicit val mout1: Manifest[FOUT1], implicit val mout2: Manifest[FOUT2]) extends Operation
+class Operation12[FIN1 <: DataSource, FOUT1 <: DataSource, FOUT2 <: DataSource](cout2: Port[FOUT2])(implicit val min1: Manifest[FIN1], implicit val mout1: Manifest[FOUT1], implicit val mout2: Manifest[FOUT2]) extends Operation(List(cout2))
 
-class Operation13[FIN1 <: DataSource, FOUT1 <: DataSource, FOUT2 <: DataSource, FOUT3 <: DataSource](cout2: Port[FOUT2], cout3: Port[FOUT3])(implicit val min1: Manifest[FIN1], implicit val mout1: Manifest[FOUT1], implicit val mout2: Manifest[FOUT2], implicit val mout3: Manifest[FOUT3]) extends Operation
+class Operation13[FIN1 <: DataSource, FOUT1 <: DataSource, FOUT2 <: DataSource, FOUT3 <: DataSource](cout2: Port[FOUT2], cout3: Port[FOUT3])(implicit val min1: Manifest[FIN1], implicit val mout1: Manifest[FOUT1], implicit val mout2: Manifest[FOUT2], implicit val mout3: Manifest[FOUT3]) extends Operation(List(cout2, cout3))
 
-class Operation21[FIN1 <: DataSource, FIN2 <: DataSource, FOUT1 <: DataSource](cin2: Port[FIN2])(implicit val min1: Manifest[FIN1], implicit val min2: Manifest[FIN2], implicit val mout1: Manifest[FOUT1]) extends Operation
+class Operation21[FIN1 <: DataSource, FIN2 <: DataSource, FOUT1 <: DataSource](cin2: Port[FIN2])(implicit val min1: Manifest[FIN1], implicit val min2: Manifest[FIN2], implicit val mout1: Manifest[FOUT1]) extends Operation(List(cin2))
 
-class Operation22[FIN1 <: DataSource, FIN2 <: DataSource, FOUT1 <: DataSource, FOUT2 <: DataSource](cin2: Port[FIN2], cout2: Port[FOUT2])(implicit val min1: Manifest[FIN1], implicit val min2: Manifest[FIN2], implicit val mout1: Manifest[FOUT1], implicit val mout2: Manifest[FOUT2]) extends Operation
+class Operation22[FIN1 <: DataSource, FIN2 <: DataSource, FOUT1 <: DataSource, FOUT2 <: DataSource](cin2: Port[FIN2], cout2: Port[FOUT2])(implicit val min1: Manifest[FIN1], implicit val min2: Manifest[FIN2], implicit val mout1: Manifest[FOUT1], implicit val mout2: Manifest[FOUT2]) extends Operation(List(cin2, cout2))
 
-class Operation23[FIN1 <: DataSource, FIN2 <: DataSource, FOUT1 <: DataSource, FOUT2 <: DataSource, FOUT3 <: DataSource](cin2: Port[FIN2], cout2: Port[FOUT2], cout3: Port[FOUT3])(implicit val min1: Manifest[FIN1], implicit val min2: Manifest[FIN2], implicit val mout1: Manifest[FOUT1], implicit val mout2: Manifest[FOUT2], implicit val mout3: Manifest[FOUT3]) extends Operation
+class Operation23[FIN1 <: DataSource, FIN2 <: DataSource, FOUT1 <: DataSource, FOUT2 <: DataSource, FOUT3 <: DataSource](cin2: Port[FIN2], cout2: Port[FOUT2], cout3: Port[FOUT3])(implicit val min1: Manifest[FIN1], implicit val min2: Manifest[FIN2], implicit val mout1: Manifest[FOUT1], implicit val mout2: Manifest[FOUT2], implicit val mout3: Manifest[FOUT3]) extends Operation(List(cin2, cout2, cout3))
 
-class Operation31[FIN1 <: DataSource, FIN2 <: DataSource, FIN3 <: DataSource, FOUT1 <: DataSource](cin2: Port[FIN2], cin3: Port[FIN3])(implicit val min1: Manifest[FIN1], implicit val min2: Manifest[FIN2], implicit val min3: Manifest[FIN3], implicit val mout1: Manifest[FOUT1]) extends Operation
+class Operation31[FIN1 <: DataSource, FIN2 <: DataSource, FIN3 <: DataSource, FOUT1 <: DataSource](cin2: Port[FIN2], cin3: Port[FIN3])(implicit val min1: Manifest[FIN1], implicit val min2: Manifest[FIN2], implicit val min3: Manifest[FIN3], implicit val mout1: Manifest[FOUT1]) extends Operation(List(cin2, cin3))
 
-class Operation32[FIN1 <: DataSource, FIN2 <: DataSource, FIN3 <: DataSource, FOUT1 <: DataSource, FOUT2 <: DataSource](cin2: Port[FIN2], cin3: Port[FIN3], cout2: Port[FOUT2])(implicit val min1: Manifest[FIN1], implicit val min2: Manifest[FIN2], implicit val min3: Manifest[FIN3], implicit val mout1: Manifest[FOUT1], implicit val mout2: Manifest[FOUT2]) extends Operation
+class Operation32[FIN1 <: DataSource, FIN2 <: DataSource, FIN3 <: DataSource, FOUT1 <: DataSource, FOUT2 <: DataSource](cin2: Port[FIN2], cin3: Port[FIN3], cout2: Port[FOUT2])(implicit val min1: Manifest[FIN1], implicit val min2: Manifest[FIN2], implicit val min3: Manifest[FIN3], implicit val mout1: Manifest[FOUT1], implicit val mout2: Manifest[FOUT2]) extends Operation(List(cin2, cin3, cout2))
 
-class Operation33[FIN1 <: DataSource, FIN2 <: DataSource, FIN3 <: DataSource, FOUT1 <: DataSource, FOUT2 <: DataSource, FOUT3 <: DataSource](cin2: Port[FIN2], cin3: Port[FIN3], cout2: Port[FOUT2], cout3: Port[FOUT3])(implicit val min1: Manifest[FIN1], implicit val min2: Manifest[FIN2], implicit val min3: Manifest[FIN3], implicit val mout1: Manifest[FOUT1], implicit val mout2: Manifest[FOUT2], implicit val mout3: Manifest[FOUT3]) extends Operation
+class Operation33[FIN1 <: DataSource, FIN2 <: DataSource, FIN3 <: DataSource, FOUT1 <: DataSource, FOUT2 <: DataSource, FOUT3 <: DataSource](cin2: Port[FIN2], cin3: Port[FIN3], cout2: Port[FOUT2], cout3: Port[FOUT3])(implicit val min1: Manifest[FIN1], implicit val min2: Manifest[FIN2], implicit val min3: Manifest[FIN3], implicit val mout1: Manifest[FOUT1], implicit val mout2: Manifest[FOUT2], implicit val mout3: Manifest[FOUT3]) extends Operation(List(cin2, cin3, cout2, cout3))
