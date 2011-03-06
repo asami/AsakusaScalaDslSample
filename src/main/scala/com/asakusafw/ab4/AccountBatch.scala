@@ -1,3 +1,6 @@
+/*
+ * 中間処理のサブフローに変更
+ */
 package com.asakusafw.ab4
 
 import com.asakusafw.dsl._
@@ -65,9 +68,9 @@ case object 売価変更在庫変更TRN修正 extends Operation11[売価変更�
 
 case object 修正データ追加修正 extends Operation11[修正データ, 修正データ]
 
+// 中間処理サブフロー用に追加したオペレーション
 case class 残高補正処理(cin: Port[売価変更在庫変更TRN]) extends Operation21[残高更新TRN, 売価変更在庫変更TRN, 残高更新TRN](cin)
 
-// 2.26
 // 図7 改善された会計処理バッチの処理フロー
 class 会計処理バッチ extends Flow32[仕入データ, 修正データ, 請求TRN,
                                     会計データTRN, 売価変更在庫変更TRN] {
@@ -80,5 +83,7 @@ class 会計処理バッチ extends Flow32[仕入データ, 修正データ, 請
     start(会計処理バッチ.this.in2) proc11(修正データ追加修正) end
   }
 
+// 売価変更自己変更TRN補正を仕入データ取り込みと残高補正処理間の中間処理サブフローに設定
+// 売価変更自己変更TRN補正は出力を会計処理バッチの第2出力ポートにも出力しているので、同報も行っている。
   start proc12(仕入データ取り込み(売価変更在庫変更TRN補正.post1)) proc21(残高更新(修正データ補正.get1)) proc21(残高補正処理(売価変更在庫変更TRN補正.get1)) proc21(照合処理(in3)) end
 }

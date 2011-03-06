@@ -48,7 +48,6 @@ case class 仕入データ取り込み(cout: Port[売価変更在庫変更TRN]) 
 case class 残高更新(cin: Port[修正データ]) extends Operation21[仕入データTRN, 修正データ, 残高更新TRN](cin)
 case class 照合処理(cin: Port[請求TRN]) extends Operation21[残高更新TRN, 請求TRN, 会計データTRN](cin)
 
-// 2.26
 // 図7 改善された会計処理バッチの処理フロー
 class 会計処理バッチ extends Flow32[仕入データ, 修正データ, 請求TRN,
                                     会計データTRN, 売価変更在庫変更TRN] {
